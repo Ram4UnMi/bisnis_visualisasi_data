@@ -38,12 +38,16 @@ filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) &
 st.title(f"📊 Data Mobility Visualization for {region_filter}")
 st.markdown(f"### Date Range: {start_date} to {end_date}")
 st.markdown("""
-As the world navigates through changes prompted by various events, the patterns of mobility in retail, workplaces, and public spaces tell a critical story. This visualization aims to inform how these mobility trends have evolved over time in your selected region.
+Explore how mobility patterns in retail, workplaces, and residential areas have changed over time.
+Use the filters on the left to customize your view. Let's dive in!
 """)
 
 # Visualizations
+st.header("Mobility Trends Overview")
+
 col1, col2 = st.columns(2)
 
+# Retail & Recreation vs Grocery & Pharmacy
 with col1:
     fig1 = px.line(
         filtered_df,
@@ -51,58 +55,77 @@ with col1:
         y=['retail_and_recreation_percent_change_from_baseline',
            'grocery_and_pharmacy_percent_change_from_baseline'],
         labels={"value": "% Change", "variable": "Category"},
-        title="Retail & Recreation vs Grocery & Pharmacy Trends"
+        title="Retail vs Grocery & Pharmacy Trends",
+        markers=True
     )
     st.plotly_chart(fig1, use_container_width=True)
-    st.markdown("""
-    The line chart above shows the percentage change in mobility for retail and recreation compared to a baseline period. 
-    Observing these trends can highlight how public sentiment influences shopping behaviors and activity in these areas over time.
-    """)
 
+# Workplace Mobility
 with col2:
     fig2 = px.bar(
         filtered_df,
         x='date',
         y='workplaces_percent_change_from_baseline',
         color='workplaces_percent_change_from_baseline',
-        title="Workplace Mobility Change Over Time",
+        title="Workplace Mobility Over Time",
         color_continuous_scale="Viridis"
     )
     st.plotly_chart(fig2, use_container_width=True)
-    st.markdown("""
-    This bar chart illustrates changes in workplace mobility. Significant fluctuations in this metric may correlate with policy changes, remote working trends, or public health guidance, offering insights into how work habits may have shifted.
-    """)
 
-st.markdown("---")
+st.markdown("""
+In these visualizations:
+- The line chart shows percentage changes in mobility for retail and recreation versus grocery and pharmacy. 
+- The bar chart depicts changes in workplace mobility over time.
 
-# Heatmap for Daily Trends
-st.header("Daily Mobility Trends")
+Both charts allow us to observe trends and fluctuations in public movement across different sectors. Let's look further into daily behavior.
+""")
+
+# Daily Mobility Heatmap
+st.header("Daily Mobility Patterns")
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
     columns=filtered_df['date'].dt.hour,
     values='residential_percent_change_from_baseline',
     aggfunc='mean'
 )
-heatmap_data.index = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
 fig3 = px.imshow(
     heatmap_data,
     labels={"color": "% Change"},
     title="Residential Mobility Heatmap",
-    color_continuous_scale="Plasma"
+    color_continuous_scale="Plasma",
+    aspect="auto"
 )
 st.plotly_chart(fig3, use_container_width=True)
+
 st.markdown("""
-The heatmap provides a visual representation of residential mobility changes throughout the week, differentiated by hours of the day. Analyzing this data can indicate patterns of residence activity, health assessments, or seasonal trends.
+The heatmap visualizes residential mobility changes across different days of the week and times of the day. 
+It helps identify peak activity times and general patterns in lifestyle choices.
 """)
 
+# Additional Chart: Box Plot for Outlier Detection
+st.header("Analysis of Workplace Mobility Variability")
+fig4 = px.box(filtered_df, 
+               x='date', 
+               y='workplaces_percent_change_from_baseline', 
+               title="Workplace Mobility Variability Over Time")
+st.plotly_chart(fig4, use_container_width=True)
+
+st.markdown("""
+This box plot reveals the distribution of workplace mobility changes over the selected date range. 
+It highlights variability, outliers, and can help us understand periods of significant changes in mobility behavior.
+""")
+
+# Final Notes
 st.caption('Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team')
 
 # Hide Streamlit style
 hide_st_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+</style>
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
