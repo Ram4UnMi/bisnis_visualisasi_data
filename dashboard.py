@@ -27,8 +27,10 @@ def toggle_language():
 # Streamlit page configuration
 st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
 
+# Sidebar - add image at the top
+st.sidebar.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/img/covidindo.jpg", use_column_width='auto')
+
 # Sidebar filters
-st.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/img/covidindo.jpg")
 st.sidebar.header("Filter Data")
 min_date = df['date'].min()
 max_date = df['date'].max()
