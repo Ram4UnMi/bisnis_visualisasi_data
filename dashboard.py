@@ -28,7 +28,7 @@ def toggle_language():
 st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
 
 # Sidebar - add image at the top
-st.sidebar.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/img/covidindo.jpg", use_column_width='auto')
+st.sidebar.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/img/covidindo.jpg", use_container_width=True)
 
 # Sidebar filters
 st.sidebar.header("Filter Data")
