@@ -106,15 +106,13 @@ with col2:
 
 # Daily Mobility Heatmap
 st.header("Daily Mobility Patterns")
-# Ensure mean is correctly aggregated
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
     columns=filtered_df['date'].dt.hour,
     values='residential_percent_change_from_baseline',
- aggfunc='mean'
+    aggfunc='mean'
 )
 
-# Check if heatmap_data is not empty and has valid shape
 if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[1] > 0:
     heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     fig3 = px.imshow(
@@ -138,6 +136,13 @@ st.plotly_chart(fig4, use_container_width=True)
 
 # Final Notes
 st.caption(texts[st.session_state.language]['final_notes'])
+
+# Sidebar creators section
+st.sidebar.markdown("---")  # Separator for better visibility
+st.sidebar.markdown("**Pembuat:**")
+st.sidebar.markdown("10122080 - Gilang Rifaldi")
+st.sidebar.markdown("10122087 - Rama Hadi Nugraha")
+st.sidebar.markdown("10122102 - Muhamad Hafiz Akbar")
 
 # Hide Streamlit style
 hide_st_style = """
