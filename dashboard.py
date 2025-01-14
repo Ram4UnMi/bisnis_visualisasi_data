@@ -106,22 +106,27 @@ with col2:
 
 # Daily Mobility Heatmap
 st.header("Daily Mobility Patterns")
+# Ensure mean is correctly aggregated
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
     columns=filtered_df['date'].dt.hour,
     values='residential_percent_change_from_baseline',
-    aggfunc='mean'
+ aggfunc='mean'
 )
-heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
-fig3 = px.imshow(
-    heatmap_data,
-    labels={"color": "% Change"},
- title="Residential Mobility Heatmap",
-    colorinuous_scale="Plasma",
-    aspect="auto"
-)
-st.plotly_chart(fig3, use_container_width=True)
+# Check if heatmap_data is not empty and has valid shape
+if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[1] > 0:
+    heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    fig3 = px.imshow(
+        heatmap_data,
+        labels={"color": "% Change"},
+        title="Residential Mobility Heatmap",
+        color_continuous_scale="Plasma",
+        aspect="auto"
+    )
+    st.plotly_chart(fig3, use_container_width=True)
+else:
+    st.warning("No data available for the selected dates. Please try a different date range or region.")
 
 # Additional Chart: Box Plot for Outlier Detection
 st.header(texts[st.session_state.language]['workplace_variability'])
