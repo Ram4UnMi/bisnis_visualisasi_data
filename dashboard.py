@@ -2,7 +2,6 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-
 # Load datasets
 df2020 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2020_ID_Region_Mobility_Report.csv")
 df2021 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2021_ID_Region_Mobility_Report.csv")
@@ -38,6 +37,9 @@ filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) &
 # Main Page Title
 st.title(f"📊 Data Mobility Visualization for {region_filter}")
 st.markdown(f"### Date Range: {start_date} to {end_date}")
+st.markdown("""
+As the world navigates through changes prompted by various events, the patterns of mobility in retail, workplaces, and public spaces tell a critical story. This visualization aims to inform how these mobility trends have evolved over time in your selected region.
+""")
 
 # Visualizations
 col1, col2 = st.columns(2)
@@ -52,6 +54,10 @@ with col1:
         title="Retail & Recreation vs Grocery & Pharmacy Trends"
     )
     st.plotly_chart(fig1, use_container_width=True)
+    st.markdown("""
+    The line chart above shows the percentage change in mobility for retail and recreation compared to a baseline period. 
+    Observing these trends can highlight how public sentiment influences shopping behaviors and activity in these areas over time.
+    """)
 
 with col2:
     fig2 = px.bar(
@@ -63,6 +69,9 @@ with col2:
         color_continuous_scale="Viridis"
     )
     st.plotly_chart(fig2, use_container_width=True)
+    st.markdown("""
+    This bar chart illustrates changes in workplace mobility. Significant fluctuations in this metric may correlate with policy changes, remote working trends, or public health guidance, offering insights into how work habits may have shifted.
+    """)
 
 st.markdown("---")
 
@@ -82,6 +91,9 @@ fig3 = px.imshow(
     color_continuous_scale="Plasma"
 )
 st.plotly_chart(fig3, use_container_width=True)
+st.markdown("""
+The heatmap provides a visual representation of residential mobility changes throughout the week, differentiated by hours of the day. Analyzing this data can indicate patterns of residence activity, health assessments, or seasonal trends.
+""")
 
 st.caption('Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team')
 
