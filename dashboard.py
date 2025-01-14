@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from googletrans import Translator
 
 # Load datasets
 df2020 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2020_ID_Region_Mobility_Report.csv")
@@ -41,6 +42,18 @@ st.markdown("""
 Explore how mobility patterns in retail, workplaces, and residential areas have changed over time.
 Use the filters on the left to customize your view. Let's dive in!
 """)
+
+# Adding translation section
+st.header("Translate Text to Indonesian")
+translator = Translator()
+
+input_text = st.text_area("Enter text to translate to Indonesian:")
+if st.button("Translate"):
+    if input_text.strip():
+        translated_text = translator.translate(input_text, src='en', dest='id').text
+        st.success(f"Translated Text: {translated_text}")
+    else:
+        st.error("Please enter some text to translate.")
 
 # Visualizations
 st.header("Mobility Trends Overview")
