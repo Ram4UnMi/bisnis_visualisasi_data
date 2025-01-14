@@ -14,6 +14,16 @@ df = pd.concat([df2020, df2021, df2022], ignore_index=True)
 # Convert date column to datetime
 df['date'] = pd.to_datetime(df['date'])
 
+# Translation state
+if 'language' not in st.session_state:
+    st.session_state.language = 'en'  # Default to English
+
+def toggle_language():
+    if st.session_state.language == 'en':
+        st.session_state.language = 'id'  # Switch to Indonesian
+    else:
+        st.session_state.language = 'en'  # Switch to English
+
 # Streamlit page configuration
 st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
 
@@ -36,27 +46,36 @@ filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) &
                  (df['sub_region_1'] == region_filter)]
 
 # Main Page Title
-st.title(f"📊 Data Mobility Visualization for {region_filter}")
-st.markdown(f"### Date Range: {start_date} to {end_date}")
-st.markdown("""
-Explore how mobility patterns in retail, workplaces, and residential areas have changed over time.
-Use the filters on the left to customize your view. Let's dive in!
-""")
+texts = {
+    'en': {
+        'title': f"📊 Data Mobility Visualization for {region_filter}",
+        'date_range': f"### Date Range: {start_date} to {end_date}",
+        'intro': "Explore how mobility patterns in retail, workplaces, and residential areas have changed over time. Use the filters on the left to customize your view. Let's dive in!",
+        'translate': 'Translate to Indonesian',
+        'mobility_overview': "Mobility Trends Overview",
+        'workplace_variability': "Analysis of Workplace Mobility Variability",
+        'final_notes': 'Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team'
+    },
+    'id': {
+        'title': f"📊 Visualisasi Mobilitas Data untuk {region_filter}",
+        'date_range': f"### Rentang Tanggal: {start_date} hingga {end_date}",
+        'intro': "Jelajahi bagaimana pola mobilitas di ritel, tempat kerja, dan area pemukiman telah berubah seiring waktu. Gunakan filter di sebelah kiri untuk menyesuaikan tampilan Anda. Ayo kita mulai!",
+        'translate': 'Terjemahkan ke Bahasa Inggris',
+        'mobility_overview': "Tinjauan Mobilitas",
+        'workplace_variability': "Analisis Variabilitas Mobilitas Tempat Kerja",
+        'final_notes': 'Data bersumber dari Laporan Mobilitas Google | Visualisasi oleh Tim Turtle IF-3'
+    }
+}
 
-# Adding translation section
-st.header("Translate Text to Indonesian")
-translator = Translator()
+# Button to toggle language
+st.button(texts[st.session_state.language]['translate'], on_click=toggle_language)
 
-input_text = st.text_area("Enter text to translate to Indonesian:")
-if st.button("Translate"):
-    if input_text.strip():
-        translated_text = translator.translate(input_text, src='en', dest='id').text
-        st.success(f"Translated Text: {translated_text}")
-    else:
-        st.error("Please enter some text to translate.")
+st.title(texts[st.session_state.language]['title'])
+st.markdown(texts[st.session_state.language]['date_range'])
+st.markdown(texts[st.session_state.language]['intro'])
 
 # Visualizations
-st.header("Mobility Trends Overview")
+st.header(texts[st.session_state.language]['mobility_overview'])
 
 col1, col2 = st.columns(2)
 
@@ -68,7 +87,7 @@ with col1:
         y=['retail_and_recreation_percent_change_from_baseline',
            'grocery_and_pharmacy_percent_change_from_baseline'],
         labels={"value": "% Change", "variable": "Category"},
-        title="Retail vs Grocery & Pharmacy Trends",
+        title=texts[st.session_state.language]['mobility_overview'],
         markers=True
     )
     st.plotly_chart(fig1, use_container_width=True)
@@ -85,14 +104,6 @@ with col2:
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-st.markdown("""
-In these visualizations:
-- The line chart shows percentage changes in mobility for retail and recreation versus grocery and pharmacy. 
-- The bar chart depicts changes in workplace mobility over time.
-
-Both charts allow us to observe trends and fluctuations in public movement across different sectors. Let's look further into daily behavior.
-""")
-
 # Daily Mobility Heatmap
 st.header("Daily Mobility Patterns")
 heatmap_data = filtered_df.pivot_table(
@@ -106,32 +117,22 @@ heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 fig3 = px.imshow(
     heatmap_data,
     labels={"color": "% Change"},
-    title="Residential Mobility Heatmap",
-    color_continuous_scale="Plasma",
+ title="Residential Mobility Heatmap",
+    colorinuous_scale="Plasma",
     aspect="auto"
 )
 st.plotly_chart(fig3, use_container_width=True)
 
-st.markdown("""
-The heatmap visualizes residential mobility changes across different days of the week and times of the day. 
-It helps identify peak activity times and general patterns in lifestyle choices.
-""")
-
 # Additional Chart: Box Plot for Outlier Detection
-st.header("Analysis of Workplace Mobility Variability")
+st.header(texts[st.session_state.language]['workplace_variability'])
 fig4 = px.box(filtered_df, 
                x='date', 
                y='workplaces_percent_change_from_baseline', 
                title="Workplace Mobility Variability Over Time")
 st.plotly_chart(fig4, use_container_width=True)
 
-st.markdown("""
-This box plot reveals the distribution of workplace mobility changes over the selected date range. 
-It highlights variability, outliers, and can help us understand periods of significant changes in mobility behavior.
-""")
-
 # Final Notes
-st.caption('Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team')
+st.caption(texts[st.session_state.language]['final_notes'])
 
 # Hide Streamlit style
 hide_st_style = """
