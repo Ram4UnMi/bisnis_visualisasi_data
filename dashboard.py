@@ -28,6 +28,7 @@ def toggle_language():
 st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
 
 # Sidebar filters
+st.image("https://raw.githubusercontent.com/Ram4UnMi/uaspdsd_if3turtle/main/img/logo.jpg")
 st.sidebar.header("Filter Data")
 min_date = df['date'].min()
 max_date = df['date'].max()
