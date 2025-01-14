@@ -142,7 +142,7 @@ st.caption(texts[st.session_state.language]['final_notes'])
 
 # Sidebar creators section
 st.sidebar.markdown("---")  # Separator for better visibility
-st.sidebar.markdown("**Pembuat:**")
+st.sidebar.markdown("**Anggota Kelompok:**")
 st.sidebar.markdown("10122080 - Gilang Rifaldi")
 st.sidebar.markdown("10122087 - Rama Hadi Nugraha")
 st.sidebar.markdown("10122102 - Muhamad Hafiz Akbar")
