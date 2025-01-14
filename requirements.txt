@@ -6,3 +6,4 @@ requests
 matplotlib
 seaborn
 plotly
+googletrans==4.0.0-rc1
