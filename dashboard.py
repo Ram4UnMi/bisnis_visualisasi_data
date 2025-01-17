@@ -106,12 +106,11 @@ st.plotly_chart(fig_scatter, use_container_width=True)
 st.header("Geospatial Map of Workplace Mobility")
 workplace_mobility = df.groupby('sub_region_1')['workplaces_percent_change_from_baseline'].mean().reset_index()
 
-# Placeholder: Replace with actual Indonesia shapefile
-indonesia_map = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-indonesia_map = indonesia_map[indonesia_map['name'] == 'Indonesia']
+# Load shapefile of Indonesia (replace with actual shapefile path)
+indonesia_map = gpd.read_file('./img/IDN0.shp')
 
 # Merge mobility data with geospatial data
-indonesia_map = indonesia_map.merge(workplace_mobility, left_on='name', right_on='sub_region_1', how='left')
+indonesia_map = indonesia_map.merge(workplace_mobility, left_on='NAME_1', right_on='sub_region_1', how='left')
 
 # Plot geospatial map
 fig, ax = plt.subplots(1, 1, figsize=(12, 10))
