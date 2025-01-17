@@ -43,11 +43,23 @@ clustering_columns = [
     'residential_percent_change_from_baseline'
 ]
 
+# Filter rows with no missing values in clustering columns
 data_for_clustering = filtered_df[clustering_columns].dropna()
+
+# Validate data input
+if data_for_clustering.isnull().values.any():
+    raise ValueError("Clustering columns contain NaN values. Please clean the data or handle missing values.")
+
+# Scale the data
 data_scaled = StandardScaler().fit_transform(data_for_clustering)
 
+# Perform clustering
 kmeans = KMeans(n_clusters=3, random_state=42)
-filtered_df['Cluster'] = kmeans.fit_predict(data_scaled)
+clusters = kmeans.fit_predict(data_scaled)
+
+# Add clusters back to filtered_df using the original index
+filtered_df = filtered_df.loc[data_for_clustering.index]  # Align indices
+filtered_df['Cluster'] = clusters
 
 # Visualizations
 st.title("Data Mobility Clustering and Visualization")
