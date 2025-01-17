@@ -4,8 +4,8 @@ pandas
 streamlit_option_menu
 requests
 matplotlib
-seaborn
 plotly
 googletrans==4.0.0-rc1
 geopandas
-sklearn
+sklearn.cluster
+sklearn.preprocessing
