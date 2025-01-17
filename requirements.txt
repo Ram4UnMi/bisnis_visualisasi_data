@@ -3,6 +3,7 @@ streamlit
 pandas
 streamlit_option_menu
 requests
+sklearn
 matplotlib
 plotly
 googletrans==4.0.0-rc1
