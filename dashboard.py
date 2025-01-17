@@ -1,10 +1,8 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from googletrans import Translator
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-import numpy as np
 
 # Load datasets
 df2020 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2020_ID_Region_Mobility_Report.csv")
@@ -28,9 +26,9 @@ if 'language' not in st.session_state:
 
 def toggle_language():
     if st.session_state.language == 'en':
-        st.session_state.language = 'id'  # Switch to Indonesian
+        st.session_state.language = 'id'
     else:
-        st.session_state.language = 'en'  # Switch to English
+        st.session_state.language = 'en'
 
 # Streamlit page configuration
 st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
@@ -64,24 +62,110 @@ filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) &
                  (df['date'] <= pd.to_datetime(end_date)) &
                  (df['sub_region_1'] == region_filter)]
 
-# Main Page Title
+# Text content in both languages
 texts = {
     'en': {
         'title': f"📊 Data Mobility Visualization for {region_filter}",
         'date_range': f"### Date Range: {start_date} to {end_date}",
-        'intro': "Explore how mobility patterns in retail, workplaces, and residential areas have changed over time. Use the filters on the left to customize your view. Let's dive in!",
+        'intro': "Explore how mobility patterns in retail, workplaces, and residential areas have changed over time. Use the filters on the left to customize your view.",
         'translate': 'Translate to Indonesian',
-        'mobility_overview': "Mobility Trends Overview",
-        'clustering_title': "SVM Clustering Analysis",
+        'retail_recreation_title': "Retail & Recreation vs Grocery & Pharmacy Mobility",
+        'retail_recreation_insight': """
+        ### Analysis & Strategic Insights
+        - **Lockdown Period (2020-2021)**:
+          - Sharp decline in retail/recreation showing strict movement restrictions
+          - Grocery/pharmacy more resilient due to essential service status
+          - Periodic spikes indicating essential shopping patterns
+        - **New Normal (2021-2022)**:
+          - Gradual recovery across both metrics
+          - Stronger recovery in retail/recreation
+          - Converging patterns suggesting return to pre-pandemic behavior
+        """,
+        'workplace_title': "Workplace Mobility Patterns",
+        'workplace_insight': """
+        ### Analysis & Strategic Insights
+        - **Lockdown Period**:
+          - Dramatic reduction showing successful work-from-home implementation
+          - Gradual increases indicating phased return-to-office
+          - Consistent negative values reflecting sustained remote work
+        - **New Normal**:
+          - Higher but below-baseline values showing hybrid work adoption
+          - More stable patterns indicating established new workplace norms
+        """,
+        'residential_title': "Residential Mobility Patterns",
+        'residential_insight': """
+        ### Analysis & Strategic Insights
+        - **Lockdown Impact**:
+          - Intense residential presence during weekdays
+          - Limited weekend variation suggesting restricted social activities
+          - Peak hours aligned with work-from-home schedules
+        - **New Normal Transition**:
+          - More varied patterns showing return to normal routines
+          - Distinct weekend-weekday differences
+          - Lower overall residential presence indicating increased outdoor activities
+        """,
+        'clustering_title': "Mobility Pattern Clusters",
+        'clustering_insight': """
+        ### Analysis & Strategic Insights
+        - **During Lockdown**:
+          - Distinct clusters showing varying compliance levels
+          - Outliers potentially indicating essential worker movements
+        - **New Normal Period**:
+          - More dispersed clusters showing increased mobility variety
+          - Cluster overlaps indicating blended pre-pandemic and new behaviors
+        """,
         'final_notes': 'Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team'
     },
     'id': {
         'title': f"📊 Visualisasi Mobilitas Data untuk {region_filter}",
         'date_range': f"### Rentang Tanggal: {start_date} hingga {end_date}",
-        'intro': "Jelajahi bagaimana pola mobilitas di ritel, tempat kerja, dan area pemukiman telah berubah seiring waktu. Gunakan filter di sebelah kiri untuk menyesuaikan tampilan Anda. Ayo kita mulai!",
+        'intro': "Jelajahi bagaimana pola mobilitas di ritel, tempat kerja, dan area pemukiman telah berubah seiring waktu. Gunakan filter di sebelah kiri untuk menyesuaikan tampilan Anda.",
         'translate': 'Terjemahkan ke Bahasa Inggris',
-        'mobility_overview': "Tinjauan Mobilitas",
-        'clustering_title': "Analisis Clustering SVM",
+        'retail_recreation_title': "Mobilitas Retail & Rekreasi vs Toko Kelontong & Farmasi",
+        'retail_recreation_insight': """
+        ### Analisis & Wawasan Strategis
+        - **Periode Lockdown (2020-2021)**:
+          - Penurunan tajam retail/rekreasi menunjukkan pembatasan pergerakan ketat
+          - Toko kelontong/farmasi lebih stabil karena layanan esensial
+          - Lonjakan periodik menunjukkan pola belanja kebutuhan pokok
+        - **Normal Baru (2021-2022)**:
+          - Pemulihan bertahap pada kedua metrik
+          - Pemulihan lebih kuat di sektor retail/rekreasi
+          - Pola konvergen menunjukkan kembali ke perilaku pra-pandemi
+        """,
+        'workplace_title': "Pola Mobilitas Tempat Kerja",
+        'workplace_insight': """
+        ### Analisis & Wawasan Strategis
+        - **Periode Lockdown**:
+          - Penurunan drastis menunjukkan keberhasilan WFH
+          - Peningkatan bertahap menunjukkan kembali ke kantor secara bertahap
+          - Nilai negatif konsisten mencerminkan kerja jarak jauh berkelanjutan
+        - **Normal Baru**:
+          - Nilai lebih tinggi namun di bawah baseline menunjukkan adopsi kerja hybrid
+          - Pola lebih stabil menunjukkan norma baru tempat kerja
+        """,
+        'residential_title': "Pola Mobilitas Residensial",
+        'residential_insight': """
+        ### Analisis & Wawasan Strategis
+        - **Dampak Lockdown**:
+          - Kehadiran residensial intens selama hari kerja
+          - Variasi akhir pekan terbatas menunjukkan aktivitas sosial terbatas
+          - Jam puncak selaras dengan jadwal WFH
+        - **Transisi Normal Baru**:
+          - Pola lebih bervariasi menunjukkan kembali ke rutinitas normal
+          - Perbedaan jelas antara akhir pekan-hari kerja
+          - Kehadiran residensial lebih rendah menunjukkan peningkatan aktivitas luar
+        """,
+        'clustering_title': "Klaster Pola Mobilitas",
+        'clustering_insight': """
+        ### Analisis & Wawasan Strategis
+        - **Selama Lockdown**:
+          - Klaster berbeda menunjukkan tingkat kepatuhan bervariasi
+          - Outlier menunjukkan pergerakan pekerja esensial
+        - **Periode Normal Baru**:
+          - Klaster lebih tersebar menunjukkan variasi mobilitas meningkat
+          - Tumpang tindih klaster menunjukkan pencampuran perilaku lama dan baru
+        """,
         'final_notes': 'Data bersumber dari Laporan Mobilitas Google | Visualisasi oleh Tim Turtle IF-3'
     }
 }
@@ -93,38 +177,33 @@ st.title(texts[st.session_state.language]['title'])
 st.markdown(texts[st.session_state.language]['date_range'])
 st.markdown(texts[st.session_state.language]['intro'])
 
-# Visualizations
-st.header(texts[st.session_state.language]['mobility_overview'])
-
-col1, col2 = st.columns(2)
-
 # Retail & Recreation vs Grocery & Pharmacy
-with col1:
-    fig1 = px.line(
-        filtered_df,
-        x='date',
-        y=['retail_and_recreation_percent_change_from_baseline',
-           'grocery_and_pharmacy_percent_change_from_baseline'],
-        labels={"value": "% Change", "variable": "Category"},
-        title=texts[st.session_state.language]['mobility_overview'],
-        markers=True
-    )
-    st.plotly_chart(fig1, use_container_width=True)
+st.header(texts[st.session_state.language]['retail_recreation_title'])
+fig1 = px.line(
+    filtered_df,
+    x='date',
+    y=['retail_and_recreation_percent_change_from_baseline',
+       'grocery_and_pharmacy_percent_change_from_baseline'],
+    labels={"value": "% Change", "variable": "Category"},
+    markers=True
+)
+st.plotly_chart(fig1, use_container_width=True)
+st.markdown(texts[st.session_state.language]['retail_recreation_insight'])
 
 # Workplace Mobility
-with col2:
-    fig2 = px.bar(
-        filtered_df,
-        x='date',
-        y='workplaces_percent_change_from_baseline',
-        color='workplaces_percent_change_from_baseline',
-        title="Workplace Mobility Over Time",
-        color_continuous_scale="Viridis"
-    )
-    st.plotly_chart(fig2, use_container_width=True)
+st.header(texts[st.session_state.language]['workplace_title'])
+fig2 = px.bar(
+    filtered_df,
+    x='date',
+    y='workplaces_percent_change_from_baseline',
+    color='workplaces_percent_change_from_baseline',
+    color_continuous_scale="Viridis"
+)
+st.plotly_chart(fig2, use_container_width=True)
+st.markdown(texts[st.session_state.language]['workplace_insight'])
 
-# Daily Mobility Heatmap
-st.header("Daily Mobility Patterns")
+# Residential Mobility Heatmap
+st.header(texts[st.session_state.language]['residential_title'])
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
     columns=filtered_df['date'].dt.hour,
@@ -137,21 +216,20 @@ if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[
     fig3 = px.imshow(
         heatmap_data,
         labels={"color": "% Change"},
-        title="Residential Mobility Heatmap",
         color_continuous_scale="Plasma",
         aspect="auto"
     )
     st.plotly_chart(fig3, use_container_width=True)
+    st.markdown(texts[st.session_state.language]['residential_insight'])
 else:
     st.warning("No data available for the selected dates. Please try a different date range or region.")
 
-# SVM Clustering Analysis Section
+# Clustering Analysis
 st.header(texts[st.session_state.language]['clustering_title'])
 
 # Filter data for the selected year
 clustering_df = df[df['year'] == selected_year].copy()
 
-# Prepare data for clustering
 features = [
     'retail_and_recreation_percent_change_from_baseline',
     'grocery_and_pharmacy_percent_change_from_baseline',
@@ -161,26 +239,21 @@ features = [
     'residential_percent_change_from_baseline'
 ]
 
-# Drop rows with missing values
 clustering_df = clustering_df.dropna(subset=features)
 
 if len(clustering_df) > 0:
-    # Scale the features
     scaler = StandardScaler()
     X = scaler.fit_transform(clustering_df[features])
     
-    # Apply KMeans clustering
-    n_clusters = 3  # You can adjust this number
+    n_clusters = 3
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)
     clustering_df['cluster'] = kmeans.fit_predict(X)
     
-    # Create visualization for clustering results
     fig_cluster = px.scatter(
         clustering_df,
         x='retail_and_recreation_percent_change_from_baseline',
         y='workplaces_percent_change_from_baseline',
         color='cluster',
-        title=f'Mobility Pattern Clusters for {selected_year}',
         labels={
             'retail_and_recreation_percent_change_from_baseline': 'Retail & Recreation Change (%)',
             'workplaces_percent_change_from_baseline': 'Workplace Change (%)'
@@ -188,12 +261,10 @@ if len(clustering_df) > 0:
         color_continuous_scale='Viridis'
     )
     st.plotly_chart(fig_cluster, use_container_width=True)
+    st.markdown(texts[st.session_state.language]['clustering_insight'])
     
-    # Display cluster statistics
-    st.subheader(f"Cluster Statistics for {selected_year}")
     cluster_stats = clustering_df.groupby('cluster')[features].mean().round(2)
     st.dataframe(cluster_stats)
-
 else:
     st.warning(f"No data available for clustering in {selected_year}")
 
@@ -201,7 +272,7 @@ else:
 st.caption(texts[st.session_state.language]['final_notes'])
 
 # Sidebar creators section
-st.sidebar.markdown("---")  # Separator for better visibility
+st.sidebar.markdown("---")
 st.sidebar.markdown("**Anggota Kelompok:**")
 st.sidebar.markdown("10122080 - Gilang Rifaldi")
 st.sidebar.markdown("10122087 - Rama Hadi Nugraha")
