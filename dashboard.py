@@ -3,7 +3,7 @@ import plotly.express as px
 import streamlit as st
 from googletrans import Translator
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
+from sklearn.cluster import KMeans
 import numpy as np
 
 # Load datasets
@@ -169,9 +169,10 @@ if len(clustering_df) > 0:
     scaler = StandardScaler()
     X = scaler.fit_transform(clustering_df[features])
     
-    # Apply SVM clustering
-    svm = SVC(kernel='rbf', random_state=42)
-    clustering_df['cluster'] = svm.fit_predict(X)
+    # Apply KMeans clustering
+    n_clusters = 3  # You can adjust this number
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clustering_df['cluster'] = kmeans.fit_predict(X)
     
     # Create visualization for clustering results
     fig_cluster = px.scatter(
@@ -179,11 +180,12 @@ if len(clustering_df) > 0:
         x='retail_and_recreation_percent_change_from_baseline',
         y='workplaces_percent_change_from_baseline',
         color='cluster',
-        title=f'SVM Clustering Results for {selected_year}',
+        title=f'Mobility Pattern Clusters for {selected_year}',
         labels={
             'retail_and_recreation_percent_change_from_baseline': 'Retail & Recreation Change (%)',
             'workplaces_percent_change_from_baseline': 'Workplace Change (%)'
-        }
+        },
+        color_continuous_scale='Viridis'
     )
     st.plotly_chart(fig_cluster, use_container_width=True)
     
@@ -191,6 +193,7 @@ if len(clustering_df) > 0:
     st.subheader(f"Cluster Statistics for {selected_year}")
     cluster_stats = clustering_df.groupby('cluster')[features].mean().round(2)
     st.dataframe(cluster_stats)
+
 else:
     st.warning(f"No data available for clustering in {selected_year}")
 
