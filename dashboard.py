@@ -1,7 +1,10 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from googletrans import Translator
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import geopandas as gpd
+import matplotlib.pyplot as plt
 
 # Load datasets
 df2020 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2020_ID_Region_Mobility_Report.csv")
@@ -13,22 +16,6 @@ df = pd.concat([df2020, df2021, df2022], ignore_index=True)
 
 # Convert date column to datetime
 df['date'] = pd.to_datetime(df['date'])
-
-# Translation state
-if 'language' not in st.session_state:
-    st.session_state.language = 'en'  # Default to English
-
-def toggle_language():
-    if st.session_state.language == 'en':
-        st.session_state.language = 'id'  # Switch to Indonesian
-    else:
-        st.session_state.language = 'en'  # Switch to English
-
-# Streamlit page configuration
-st.set_page_config(page_title="Data Mobility Visualization", layout="wide")
-
-# Sidebar - add image at the top
-st.sidebar.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/img/covidindo.jpg", use_container_width=True)
 
 # Sidebar filters
 st.sidebar.header("Filter Data")
@@ -45,70 +32,28 @@ region_filter = st.sidebar.selectbox(
 
 # Filter data based on user input
 filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) &
-                 (df['date'] <= pd.to_datetime(end_date)) &
-                 (df['sub_region_1'] == region_filter)]
+                 (df['date'] <= pd.to_datetime(end_date))]
 
-# Main Page Title
-texts = {
-    'en': {
-        'title': f"📊 Data Mobility Visualization for {region_filter}",
-        'date_range': f"### Date Range: {start_date} to {end_date}",
-        'intro': "Explore how mobility patterns in retail, workplaces, and residential areas have changed over time. Use the filters on the left to customize your view. Let's dive in!",
-        'translate': 'Translate to Indonesian',
-        'mobility_overview': "Mobility Trends Overview",
-        'workplace_variability': "Analysis of Workplace Mobility Variability",
-        'final_notes': 'Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team'
-    },
-    'id': {
-        'title': f"📊 Visualisasi Mobilitas Data untuk {region_filter}",
-        'date_range': f"### Rentang Tanggal: {start_date} hingga {end_date}",
-        'intro': "Jelajahi bagaimana pola mobilitas di ritel, tempat kerja, dan area pemukiman telah berubah seiring waktu. Gunakan filter di sebelah kiri untuk menyesuaikan tampilan Anda. Ayo kita mulai!",
-        'translate': 'Terjemahkan ke Bahasa Inggris',
-        'mobility_overview': "Tinjauan Mobilitas",
-        'workplace_variability': "Analisis Variabilitas Mobilitas Tempat Kerja",
-        'final_notes': 'Data bersumber dari Laporan Mobilitas Google | Visualisasi oleh Tim Turtle IF-3'
-    }
-}
+# Perform clustering
+clustering_columns = [
+    'retail_and_recreation_percent_change_from_baseline',
+    'grocery_and_pharmacy_percent_change_from_baseline',
+    'parks_percent_change_from_baseline',
+    'workplaces_percent_change_from_baseline',
+    'residential_percent_change_from_baseline'
+]
 
-# Button to toggle language
-st.button(texts[st.session_state.language]['translate'], on_click=toggle_language)
+data_for_clustering = filtered_df[clustering_columns].dropna()
+data_scaled = StandardScaler().fit_transform(data_for_clustering)
 
-st.title(texts[st.session_state.language]['title'])
-st.markdown(texts[st.session_state.language]['date_range'])
-st.markdown(texts[st.session_state.language]['intro'])
+kmeans = KMeans(n_clusters=3, random_state=42)
+filtered_df['Cluster'] = kmeans.fit_predict(data_scaled)
 
 # Visualizations
-st.header(texts[st.session_state.language]['mobility_overview'])
+st.title("Data Mobility Clustering and Visualization")
 
-col1, col2 = st.columns(2)
-
-# Retail & Recreation vs Grocery & Pharmacy
-with col1:
-    fig1 = px.line(
-        filtered_df,
-        x='date',
-        y=['retail_and_recreation_percent_change_from_baseline',
-           'grocery_and_pharmacy_percent_change_from_baseline'],
-        labels={"value": "% Change", "variable": "Category"},
-        title=texts[st.session_state.language]['mobility_overview'],
-        markers=True
-    )
-    st.plotly_chart(fig1, use_container_width=True)
-
-# Workplace Mobility
-with col2:
-    fig2 = px.bar(
-        filtered_df,
-        x='date',
-        y='workplaces_percent_change_from_baseline',
-        color='workplaces_percent_change_from_baseline',
-        title="Workplace Mobility Over Time",
-        color_continuous_scale="Viridis"
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-
-# Daily Mobility Heatmap
-st.header("Daily Mobility Patterns")
+# Heatmap
+st.header("Heatmap of Residential Mobility")
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
     columns=filtered_df['date'].dt.hour,
@@ -116,43 +61,54 @@ heatmap_data = filtered_df.pivot_table(
     aggfunc='mean'
 )
 
-if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[1] > 0:
+if not heatmap_data.empty:
     heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    fig3 = px.imshow(
+    fig_heatmap = px.imshow(
         heatmap_data,
         labels={"color": "% Change"},
         title="Residential Mobility Heatmap",
         color_continuous_scale="Plasma",
         aspect="auto"
     )
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig_heatmap, use_container_width=True)
 else:
     st.warning("No data available for the selected dates. Please try a different date range or region.")
 
-# Additional Chart: Box Plot for Outlier Detection
-st.header(texts[st.session_state.language]['workplace_variability'])
-fig4 = px.box(filtered_df, 
-               x='date', 
-               y='workplaces_percent_change_from_baseline', 
-               title="Workplace Mobility Variability Over Time")
-st.plotly_chart(fig4, use_container_width=True)
+# Scatter Plot of Clusters
+st.header("Scatter Plot of Mobility Clusters")
+fig_scatter = px.scatter(
+    filtered_df,
+    x='retail_and_recreation_percent_change_from_baseline',
+    y='workplaces_percent_change_from_baseline',
+    color='Cluster',
+    title="Clustering of Mobility Data",
+    labels={
+        'retail_and_recreation_percent_change_from_baseline': 'Retail & Recreation Mobility',
+        'workplaces_percent_change_from_baseline': 'Workplace Mobility'
+    },
+    hover_data=clustering_columns
+)
+st.plotly_chart(fig_scatter, use_container_width=True)
 
-# Final Notes
-st.caption(texts[st.session_state.language]['final_notes'])
+# Geospatial Map of Workplace Mobility
+st.header("Geospatial Map of Workplace Mobility")
+workplace_mobility = df.groupby('sub_region_1')['workplaces_percent_change_from_baseline'].mean().reset_index()
 
-# Sidebar creators section
-st.sidebar.markdown("---")  # Separator for better visibility
-st.sidebar.markdown("**Anggota Kelompok:**")
-st.sidebar.markdown("10122080 - Gilang Rifaldi")
-st.sidebar.markdown("10122087 - Rama Hadi Nugraha")
-st.sidebar.markdown("10122102 - Muhamad Hafiz Akbar")
+# Placeholder: Replace with actual Indonesia shapefile
+indonesia_map = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+indonesia_map = indonesia_map[indonesia_map['name'] == 'Indonesia']
 
-# Hide Streamlit style
-hide_st_style = """
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-</style>
-"""
-st.markdown(hide_st_style, unsafe_allow_html=True)
+# Merge mobility data with geospatial data
+indonesia_map = indonesia_map.merge(workplace_mobility, left_on='name', right_on='sub_region_1', how='left')
+
+# Plot geospatial map
+fig, ax = plt.subplots(1, 1, figsize=(12, 10))
+indonesia_map.plot(column='workplaces_percent_change_from_baseline',
+                   cmap='OrRd',
+                   legend=True,
+                   legend_kwds={'label': "Workplace Mobility Change (%)"},
+                   ax=ax)
+plt.title('Workplace Mobility Across Provinces in Indonesia')
+st.pyplot(fig)
+
+st.caption("Data sourced from Google Mobility Reports | Visualization by Streamlit")
