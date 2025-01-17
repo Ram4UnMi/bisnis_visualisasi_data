@@ -109,28 +109,17 @@ workplace_mobility = df.groupby('sub_region_1')['workplaces_percent_change_from_
 # Load shapefile of Indonesia
 indonesia_map = gpd.read_file('./img/IDN0.shp')
 
-# Print columns to debug
-print("Available columns in shapefile:", indonesia_map.columns)
+# Create a simple geospatial map without interactivity
+fig, ax = plt.subplots(1, 1, figsize=(12, 10))
+indonesia_map.plot(ax=ax, color='white', edgecolor='black')
 
-# Assuming 'Province' is the correct column name
-indonesia_map['Province'] = indonesia_map['Province'].str.strip().str.lower()
-workplace_mobility['sub_region_1'] = workplace_mobility['sub_region_1'].str.strip().str.lower()
+# Add percentage data as text (mock data since no province column is available)
+for idx, row in indonesia_map.iterrows():
+    ax.text(row.geometry.centroid.x, row.geometry.centroid.y, 'N/A', 
+            fontsize=8, ha='center', va='center', color='blue')
 
-# Merge mobility data with geospatial data
-indonesia_map = indonesia_map.merge(workplace_mobility, left_on='Province', right_on='sub_region_1', how='left')
-
-# Validate merge
-if indonesia_map['workplaces_percent_change_from_baseline'].isnull().all():
-    st.warning("No matching regions found between shapefile and mobility data. Please check column names.")
-else:
-    # Plot geospatial map
-    fig, ax = plt.subplots(1, 1, figsize=(12, 10))
-    indonesia_map.plot(column='workplaces_percent_change_from_baseline',
-                       cmap='OrRd',
-                       legend=True,
-                       legend_kwds={'label': "Workplace Mobility Change (%)"},
-                       ax=ax)
-    plt.title('Workplace Mobility Across Provinces in Indonesia')
-    st.pyplot(fig)
+plt.title('Geospatial Map of Workplace Mobility (Percentage Placeholder)')
+plt.axis('off')
+st.pyplot(fig)
 
 st.caption("Data sourced from Google Mobility Reports | Visualization by Streamlit")
