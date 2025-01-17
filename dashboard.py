@@ -104,15 +104,71 @@ texts = {
           - Distinct weekend-weekday differences
           - Lower overall residential presence indicating increased outdoor activities
         """,
-        'clustering_title': "Mobility Pattern Clusters",
+        'clustering_title': "Mobility Pattern Clusters Analysis Dashboard",
+        'clustering_subtitle': "Understanding Mobility Behavioral Patterns",
+        'cluster_overview': """
+        ### Cluster Overview
+        The clustering analysis identifies three distinct mobility pattern groups:
+        - **Cluster 0**: High Restriction Compliance
+        - **Cluster 1**: Moderate Activity Patterns
+        - **Cluster 2**: Essential/Active Movement
+        """,
         'clustering_insight': """
         ### Analysis & Strategic Insights
-        - **During Lockdown**:
+        - **During Lockdown (2020)**:
           - Distinct clusters showing varying compliance levels
+          - Tight clustering patterns indicating clear behavioral segments
           - Outliers potentially indicating essential worker movements
-        - **New Normal Period**:
+          - Strong negative correlation between residential and workplace mobility
+        
+        - **Transition Period (2021)**:
+          - Clusters showing more spread, indicating behavioral variation
+          - Emergence of hybrid patterns between clusters
+          - Gradual shift towards pre-pandemic mobility patterns
+          - Mixed workplace-retail relationships emerging
+        
+        - **New Normal Period (2022)**:
           - More dispersed clusters showing increased mobility variety
           - Cluster overlaps indicating blended pre-pandemic and new behaviors
+          - Reduced distinction between weekend and weekday patterns
+          - New stable patterns emerging in workplace mobility
+        """,
+        'cluster_characteristics': """
+        ### Cluster Characteristics
+        #### Cluster 0: High Restriction Compliance
+        - Highest residential mobility (+)
+        - Lowest retail/recreation mobility (-)
+        - Minimal workplace mobility
+        - Typical during strict lockdown periods
+        
+        #### Cluster 1: Moderate Activity Patterns
+        - Balanced residential and workplace mobility
+        - Moderate retail/recreation activity
+        - Represents transition to hybrid working
+        - Common during relaxed restrictions
+        
+        #### Cluster 2: Essential/Active Movement
+        - Higher workplace mobility
+        - Increased retail/recreation activity
+        - Lower residential presence
+        - Characteristic of essential workers/new normal
+        """,
+        'cluster_recommendations': """
+        ### Strategic Recommendations
+        1. **Policy Planning**:
+           - Use cluster transitions to guide restriction adjustments
+           - Monitor cluster sizes for compliance assessment
+           - Target interventions based on cluster characteristics
+        
+        2. **Business Adaptations**:
+           - Adjust operations based on dominant cluster patterns
+           - Plan for hybrid work based on cluster distributions
+           - Prepare for pattern shifts between clusters
+        
+        3. **Public Health Measures**:
+           - Focus restrictions based on cluster movement patterns
+           - Implement targeted measures for different clusters
+           - Monitor cluster evolution for outbreak risks
         """,
         'final_notes': 'Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team'
     },
@@ -156,15 +212,71 @@ texts = {
           - Perbedaan jelas antara akhir pekan-hari kerja
           - Kehadiran residensial lebih rendah menunjukkan peningkatan aktivitas luar
         """,
-        'clustering_title': "Klaster Pola Mobilitas",
+        'clustering_title': "Dashboard Analisis Klaster Pola Mobilitas",
+        'clustering_subtitle': "Memahami Pola Perilaku Mobilitas",
+        'cluster_overview': """
+        ### Ikhtisar Klaster
+        Analisis klaster mengidentifikasi tiga kelompok pola mobilitas yang berbeda:
+        - **Klaster 0**: Kepatuhan Pembatasan Tinggi
+        - **Klaster 1**: Pola Aktivitas Moderat
+        - **Klaster 2**: Pergerakan Esensial/Aktif
+        """,
         'clustering_insight': """
         ### Analisis & Wawasan Strategis
-        - **Selama Lockdown**:
+        - **Selama Lockdown (2020)**:
           - Klaster berbeda menunjukkan tingkat kepatuhan bervariasi
+          - Pola pengelompokan ketat menunjukkan segmen perilaku yang jelas
           - Outlier menunjukkan pergerakan pekerja esensial
-        - **Periode Normal Baru**:
+          - Korelasi negatif kuat antara mobilitas residensial dan tempat kerja
+        
+        - **Periode Transisi (2021)**:
+          - Klaster menunjukkan lebih banyak sebaran, menandakan variasi perilaku
+          - Munculnya pola hybrid antar klaster
+          - Pergeseran bertahap menuju pola mobilitas pra-pandemi
+          - Muncul hubungan campuran antara tempat kerja-retail
+        
+        - **Periode Normal Baru (2022)**:
           - Klaster lebih tersebar menunjukkan variasi mobilitas meningkat
           - Tumpang tindih klaster menunjukkan pencampuran perilaku lama dan baru
+          - Berkurangnya perbedaan antara pola akhir pekan dan hari kerja
+          - Munculnya pola stabil baru dalam mobilitas tempat kerja
+        """,
+        'cluster_characteristics': """
+        ### Karakteristik Klaster
+        #### Klaster 0: Kepatuhan Pembatasan Tinggi
+        - Mobilitas residensial tertinggi (+)
+        - Mobilitas retail/rekreasi terendah (-)
+        - Mobilitas tempat kerja minimal
+        - Tipikal selama periode lockdown ketat
+        
+        #### Klaster 1: Pola Aktivitas Moderat
+        - Mobilitas residensial dan tempat kerja seimbang
+        - Aktivitas retail/rekreasi moderat
+        - Mewakili transisi ke kerja hybrid
+        - Umum selama pembatasan dilonggarkan
+        
+        #### Klaster 2: Pergerakan Esensial/Aktif
+        - Mobilitas tempat kerja lebih tinggi
+        - Aktivitas retail/rekreasi meningkat
+        - Kehadiran residensial lebih rendah
+        - Karakteristik pekerja esensial/normal baru
+        """,
+        'cluster_recommendations': """
+        ### Rekomendasi Strategis
+        1. **Perencanaan Kebijakan**:
+           - Gunakan transisi klaster untuk panduan penyesuaian pembatasan
+           - Pantau ukuran klaster untuk penilaian kepatuhan
+           - Targetkan intervensi berdasarkan karakteristik klaster
+        
+        2. **Adaptasi Bisnis**:
+           - Sesuaikan operasi berdasarkan pola klaster dominan
+           - Rencanakan kerja hybrid berdasarkan distribusi klaster
+           - Persiapkan pergeseran pola antar klaster
+        
+        3. **Langkah Kesehatan Masyarakat**:
+           - Fokuskan pembatasan berdasarkan pola pergerakan klaster
+           - Terapkan langkah-langkah terarah untuk klaster berbeda
+           - Pantau evolusi klaster untuk risiko wabah
         """,
         'final_notes': 'Data bersumber dari Laporan Mobilitas Google | Visualisasi oleh Tim Turtle IF-3'
     }
@@ -226,6 +338,8 @@ else:
 
 # Clustering Analysis
 st.header(texts[st.session_state.language]['clustering_title'])
+st.markdown(texts[st.session_state.language]['clustering_subtitle'])
+st.markdown(texts[st.session_state.language]['cluster_overview'])
 
 # Filter data for the selected year
 clustering_df = df[df['year'] == selected_year].copy()
@@ -263,8 +377,14 @@ if len(clustering_df) > 0:
     st.plotly_chart(fig_cluster, use_container_width=True)
     st.markdown(texts[st.session_state.language]['clustering_insight'])
     
+    # Display cluster statistics with enhanced formatting
+    st.subheader("Cluster Statistics")
     cluster_stats = clustering_df.groupby('cluster')[features].mean().round(2)
-    st.dataframe(cluster_stats)
+    st.dataframe(cluster_stats, use_container_width=True)
+    
+    # Display detailed cluster characteristics and recommendations
+    st.markdown(texts[st.session_state.language]['cluster_characteristics'])
+    st.markdown(texts[st.session_state.language]['cluster_recommendations'])
 else:
     st.warning(f"No data available for clustering in {selected_year}")
 
