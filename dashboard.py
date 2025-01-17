@@ -109,12 +109,15 @@ workplace_mobility = df.groupby('sub_region_1')['workplaces_percent_change_from_
 # Load shapefile of Indonesia
 indonesia_map = gpd.read_file('./img/IDN0.shp')
 
-# Normalize column names for matching
-indonesia_map['NAME_1'] = indonesia_map['NAME_1'].str.strip().str.lower()
+# Print columns to debug
+print("Available columns in shapefile:", indonesia_map.columns)
+
+# Assuming 'Province' is the correct column name
+indonesia_map['Province'] = indonesia_map['Province'].str.strip().str.lower()
 workplace_mobility['sub_region_1'] = workplace_mobility['sub_region_1'].str.strip().str.lower()
 
 # Merge mobility data with geospatial data
-indonesia_map = indonesia_map.merge(workplace_mobility, left_on='NAME_1', right_on='sub_region_1', how='left')
+indonesia_map = indonesia_map.merge(workplace_mobility, left_on='Province', right_on='sub_region_1', how='left')
 
 # Validate merge
 if indonesia_map['workplaces_percent_change_from_baseline'].isnull().all():
