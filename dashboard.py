@@ -2,11 +2,19 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from googletrans import Translator
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+import numpy as np
 
 # Load datasets
 df2020 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2020_ID_Region_Mobility_Report.csv")
 df2021 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2021_ID_Region_Mobility_Report.csv")
 df2022 = pd.read_csv("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_data/main/dataset/2022_ID_Region_Mobility_Report.csv")
+
+# Add year column to each dataset
+df2020['year'] = 2020
+df2021['year'] = 2021
+df2022['year'] = 2022
 
 # Combine datasets
 df = pd.concat([df2020, df2021, df2022], ignore_index=True)
@@ -32,6 +40,14 @@ st.sidebar.image("https://raw.githubusercontent.com/Ram4UnMi/bisnis_visualisasi_
 
 # Sidebar filters
 st.sidebar.header("Filter Data")
+
+# Year selector for clustering
+selected_year = st.sidebar.selectbox(
+    "Select Year for Clustering Analysis:",
+    options=[2020, 2021, 2022],
+    index=0
+)
+
 min_date = df['date'].min()
 max_date = df['date'].max()
 
@@ -56,7 +72,7 @@ texts = {
         'intro': "Explore how mobility patterns in retail, workplaces, and residential areas have changed over time. Use the filters on the left to customize your view. Let's dive in!",
         'translate': 'Translate to Indonesian',
         'mobility_overview': "Mobility Trends Overview",
-        'workplace_variability': "Analysis of Workplace Mobility Variability",
+        'clustering_title': "SVM Clustering Analysis",
         'final_notes': 'Data sourced from Google Mobility Reports | Visualization by Turtle IF-3 Team'
     },
     'id': {
@@ -65,7 +81,7 @@ texts = {
         'intro': "Jelajahi bagaimana pola mobilitas di ritel, tempat kerja, dan area pemukiman telah berubah seiring waktu. Gunakan filter di sebelah kiri untuk menyesuaikan tampilan Anda. Ayo kita mulai!",
         'translate': 'Terjemahkan ke Bahasa Inggris',
         'mobility_overview': "Tinjauan Mobilitas",
-        'workplace_variability': "Analisis Variabilitas Mobilitas Tempat Kerja",
+        'clustering_title': "Analisis Clustering SVM",
         'final_notes': 'Data bersumber dari Laporan Mobilitas Google | Visualisasi oleh Tim Turtle IF-3'
     }
 }
@@ -129,13 +145,54 @@ if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[
 else:
     st.warning("No data available for the selected dates. Please try a different date range or region.")
 
-# Additional Chart: Box Plot for Outlier Detection
-st.header(texts[st.session_state.language]['workplace_variability'])
-fig4 = px.box(filtered_df, 
-               x='date', 
-               y='workplaces_percent_change_from_baseline', 
-               title="Workplace Mobility Variability Over Time")
-st.plotly_chart(fig4, use_container_width=True)
+# SVM Clustering Analysis Section
+st.header(texts[st.session_state.language]['clustering_title'])
+
+# Filter data for the selected year
+clustering_df = df[df['year'] == selected_year].copy()
+
+# Prepare data for clustering
+features = [
+    'retail_and_recreation_percent_change_from_baseline',
+    'grocery_and_pharmacy_percent_change_from_baseline',
+    'parks_percent_change_from_baseline',
+    'transit_stations_percent_change_from_baseline',
+    'workplaces_percent_change_from_baseline',
+    'residential_percent_change_from_baseline'
+]
+
+# Drop rows with missing values
+clustering_df = clustering_df.dropna(subset=features)
+
+if len(clustering_df) > 0:
+    # Scale the features
+    scaler = StandardScaler()
+    X = scaler.fit_transform(clustering_df[features])
+    
+    # Apply SVM clustering
+    svm = SVC(kernel='rbf', random_state=42)
+    clustering_df['cluster'] = svm.fit_predict(X)
+    
+    # Create visualization for clustering results
+    fig_cluster = px.scatter(
+        clustering_df,
+        x='retail_and_recreation_percent_change_from_baseline',
+        y='workplaces_percent_change_from_baseline',
+        color='cluster',
+        title=f'SVM Clustering Results for {selected_year}',
+        labels={
+            'retail_and_recreation_percent_change_from_baseline': 'Retail & Recreation Change (%)',
+            'workplaces_percent_change_from_baseline': 'Workplace Change (%)'
+        }
+    )
+    st.plotly_chart(fig_cluster, use_container_width=True)
+    
+    # Display cluster statistics
+    st.subheader(f"Cluster Statistics for {selected_year}")
+    cluster_stats = clustering_df.groupby('cluster')[features].mean().round(2)
+    st.dataframe(cluster_stats)
+else:
+    st.warning(f"No data available for clustering in {selected_year}")
 
 # Final Notes
 st.caption(texts[st.session_state.language]['final_notes'])
