@@ -304,6 +304,15 @@ st.markdown(texts[st.session_state.language]['retail_recreation_insight'])
 
 # Workplace Mobility
 st.header(texts[st.session_state.language]['workplace_title'])
+
+# Identifikasi titik maksimum dan minimum
+max_value = filtered_df['workplaces_percent_change_from_baseline'].max()
+min_value = filtered_df['workplaces_percent_change_from_baseline'].min()
+
+max_date = filtered_df.loc[filtered_df['workplaces_percent_change_from_baseline'].idxmax(), 'date']
+min_date = filtered_df.loc[filtered_df['workplaces_percent_change_from_baseline'].idxmin(), 'date']
+
+# Grafik utama
 fig2 = px.bar(
     filtered_df,
     x='date',
@@ -311,8 +320,35 @@ fig2 = px.bar(
     color='workplaces_percent_change_from_baseline',
     color_continuous_scale="Viridis"
 )
+
+# Tambahkan titik maksimum dan minimum
+fig2.add_scatter(
+    x=[max_date, min_date],
+    y=[max_value, min_value],
+    mode='markers',
+    marker=dict(color='red', size=10),
+    name='Max/Min Points'
+)
+
 st.plotly_chart(fig2, use_container_width=True)
 st.markdown(texts[st.session_state.language]['workplace_insight'])
+
+# Sub grafik yang hanya menampilkan grafik kenaikan data
+st.subheader("Workplace Mobility Increase Patterns")
+
+# Filter data untuk kenaikan (nilai positif)
+increase_df = filtered_df[filtered_df['workplaces_percent_change_from_baseline'] > 0]
+
+fig_increase = px.bar(
+    increase_df,
+    x='date',
+    y='workplaces_percent_change_from_baseline',
+    color='workplaces_percent_change_from_baseline',
+    color_continuous_scale="Viridis",
+    title="Workplace Mobility Increase Only"
+)
+
+st.plotly_chart(fig_increase, use_container_width=True)
 
 # Residential Mobility Heatmap
 st.header(texts[st.session_state.language]['residential_title'])
