@@ -309,13 +309,28 @@ min_value_retail = filtered_df['retail_and_recreation_percent_change_from_baseli
 max_date_retail = filtered_df.loc[filtered_df['retail_and_recreation_percent_change_from_baseline'].idxmax(), 'date']
 min_date_retail = filtered_df.loc[filtered_df['retail_and_recreation_percent_change_from_baseline'].idxmin(), 'date']
 
+# Menambahkan titik maksimum dan minimum untuk grocery & pharmacy
+max_value_grocery = filtered_df['grocery_and_pharmacy_percent_change_from_baseline'].max()
+min_value_grocery = filtered_df['grocery_and_pharmacy_percent_change_from_baseline'].min()
+
+max_date_grocery = filtered_df.loc[filtered_df['grocery_and_pharmacy_percent_change_from_baseline'].idxmax(), 'date']
+min_date_grocery = filtered_df.loc[filtered_df['grocery_and_pharmacy_percent_change_from_baseline'].idxmin(), 'date']
+
 # Menambahkan titik maksimum dan minimum ke grafik
 fig1.add_scatter(
     x=[max_date_retail, min_date_retail],
     y=[max_value_retail, min_value_retail],
     mode='markers',
     marker=dict(color='blue', size=10),
-    name='Max/Min Points'
+    name='Retail Max/Min Points'
+)
+
+fig1.add_scatter(
+    x=[max_date_grocery, min_date_grocery],
+    y=[max_value_grocery, min_value_grocery],
+    mode='markers',
+    marker=dict(color='orange', size=10),
+    name='Grocery Max/Min Points'
 )
 
 # Mengubah warna garis berdasarkan perubahan
