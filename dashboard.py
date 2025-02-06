@@ -289,16 +289,42 @@ st.title(texts[st.session_state.language]['title'])
 st.markdown(texts[st.session_state.language]['date_range'])
 st.markdown(texts[st.session_state.language]['intro'])
 
+
 # Retail & Recreation vs Grocery & Pharmacy
 st.header(texts[st.session_state.language]['retail_recreation_title'])
+
+# Menentukan warna berdasarkan perubahan
+filtered_df['color'] = filtered_df['retail_and_recreation_percent_change_from_baseline'].diff().apply(lambda x: 'green' if x > 0 else 'red')
+
+# Membuat grafik garis
 fig1 = px.line(
     filtered_df,
     x='date',
-    y=['retail_and_recreation_percent_change_from_baseline',
-       'grocery_and_pharmacy_percent_change_from_baseline'],
+    y=['retail_and_recreation_percent_change_from_baseline', 'grocery_and_pharmacy_percent_change_from_baseline'],
     labels={"value": "% Change", "variable": "Category"},
     markers=True
 )
+
+# Menambahkan titik maksimum dan minimum
+max_value_retail = filtered_df['retail_and_recreation_percent_change_from_baseline'].max()
+min_value_retail = filtered_df['retail_and_recreation_percent_change_from_baseline'].min()
+
+max_date_retail = filtered_df.loc[filtered_df['retail_and_recreation_percent_change_from_baseline'].idxmax(), 'date']
+min_date_retail = filtered_df.loc[filtered_df['retail_and_recreation_percent_change_from_baseline'].idxmin(), 'date']
+
+# Menambahkan titik maksimum dan minimum ke grafik
+fig1.add_scatter(
+    x=[max_date_retail, min_date_retail],
+    y=[max_value_retail, min_value_retail],
+    mode='markers',
+    marker=dict(color='blue', size=10),
+    name='Max/Min Points'
+)
+
+# Mengubah warna garis berdasarkan perubahan
+for trace in fig1.data:
+    trace.line.color = 'green' if trace.name == 'retail_and_recreation_percent_change_from_baseline' else 'red'
+
 st.plotly_chart(fig1, use_container_width=True)
 st.markdown(texts[st.session_state.language]['retail_recreation_insight'])
 
