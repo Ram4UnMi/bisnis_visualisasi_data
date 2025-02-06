@@ -409,42 +409,29 @@ fig_decrease = px.bar(
 
 st.plotly_chart(fig_decrease, use_container_width=True)
 
-# Residential Mobility Heatmap dengan penekanan
+# Residential Mobility Bar Chart
 st.header(texts[st.session_state.language]['residential_title'])
-heatmap_data = filtered_df.pivot_table(
-    index=filtered_df['date'].dt.weekday,
-    columns=filtered_df['date'].dt.hour,
-    values='residential_percent_change_from_baseline',
-    aggfunc='mean'
+
+# Hitung rata-rata perubahan mobilitas per hari
+daily_avg = filtered_df.groupby(filtered_df['date'].dt.weekday)['residential_percent_change_from_baseline'].mean()
+daily_avg.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+# Buat grafik batang
+fig_bar = px.bar(
+    daily_avg,
+    x=daily_avg.index,
+    y=daily_avg.values,
+    labels={"x": "Day", "y": "Average % Change"},
+    color=daily_avg.index,
+    color_discrete_sequence=px.colors.qualitative.Pastel,
+    title="Average Residential Mobility Change by Day"
 )
 
-if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[1] > 0:
-    heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    
-    # Buat heatmap dengan anotasi
-    fig3 = px.imshow(
-        heatmap_data,
-        labels={"color": "% Change"},
-        color_continuous_scale="Plasma",
-        aspect="auto",
-        text_auto=True  # Menambahkan nilai persentase di setiap sel
-    )
-    
-    # Soroti akhir pekan (Sabtu dan Minggu)
-    for i, day in enumerate(heatmap_data.index):
-        if day in ["Sat", "Sun"]:
-            fig3.add_shape(
-                type="rect",
-                x0=-0.5, x1=len(heatmap_data.columns)-0.5,
-                y0=i-0.5, y1=i+0.5,
-                line=dict(color="yellow", width=2),
-                fillcolor="rgba(255,255,0,0.1)"
-            )
-    
-    st.plotly_chart(fig3, use_container_width=True)
-    st.markdown(texts[st.session_state.language]['residential_insight'])
-else:
-    st.warning("No data available for the selected dates. Please try a different date range or region.")
+# Soroti akhir pekan
+fig_bar.update_traces(marker_color=["blue"]*5 + ["red"]*2)
+
+st.plotly_chart(fig_bar, use_container_width=True)
+st.markdown(texts[st.session_state.language]['residential_insight'])
 
 # Clustering Analysis
 st.header(texts[st.session_state.language]['clustering_title'])
