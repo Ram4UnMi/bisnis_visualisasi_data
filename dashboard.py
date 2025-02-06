@@ -428,7 +428,7 @@ fig_bar = px.bar(
 )
 
 # Soroti akhir pekan
-fig_bar.update_traces(marker_color=["blue"]*5 + ["red"]*2)
+fig_bar.update_traces(marker_color=["green"]*5 + ["red"]*2)
 
 st.plotly_chart(fig_bar, use_container_width=True)
 st.markdown(texts[st.session_state.language]['residential_insight'])
