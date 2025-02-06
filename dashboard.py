@@ -409,7 +409,7 @@ fig_decrease = px.bar(
 
 st.plotly_chart(fig_decrease, use_container_width=True)
 
-# Residential Mobility Heatmap
+# Residential Mobility Heatmap dengan penekanan
 st.header(texts[st.session_state.language]['residential_title'])
 heatmap_data = filtered_df.pivot_table(
     index=filtered_df['date'].dt.weekday,
@@ -420,12 +420,27 @@ heatmap_data = filtered_df.pivot_table(
 
 if not heatmap_data.empty and heatmap_data.shape[0] == 7 and heatmap_data.shape[1] > 0:
     heatmap_data.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    
+    # Buat heatmap dengan anotasi
     fig3 = px.imshow(
         heatmap_data,
         labels={"color": "% Change"},
         color_continuous_scale="Plasma",
-        aspect="auto"
+        aspect="auto",
+        text_auto=True  # Menambahkan nilai persentase di setiap sel
     )
+    
+    # Soroti akhir pekan (Sabtu dan Minggu)
+    for i, day in enumerate(heatmap_data.index):
+        if day in ["Sat", "Sun"]:
+            fig3.add_shape(
+                type="rect",
+                x0=-0.5, x1=len(heatmap_data.columns)-0.5,
+                y0=i-0.5, y1=i+0.5,
+                line=dict(color="yellow", width=2),
+                fillcolor="rgba(255,255,0,0.1)"
+            )
+    
     st.plotly_chart(fig3, use_container_width=True)
     st.markdown(texts[st.session_state.language]['residential_insight'])
 else:
