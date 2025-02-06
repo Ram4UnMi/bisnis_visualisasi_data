@@ -293,9 +293,6 @@ st.markdown(texts[st.session_state.language]['intro'])
 # Retail & Recreation vs Grocery & Pharmacy
 st.header(texts[st.session_state.language]['retail_recreation_title'])
 
-# Menentukan warna berdasarkan perubahan
-filtered_df['color'] = filtered_df['retail_and_recreation_percent_change_from_baseline'].diff().apply(lambda x: 'green' if x > 0 else 'red')
-
 # Membuat grafik garis tanpa penanda
 fig1 = px.line(
     filtered_df,
@@ -323,8 +320,10 @@ fig1.add_scatter(
 
 # Mengubah warna garis berdasarkan perubahan
 for trace in fig1.data:
-    trace.line.color = 'green' if trace.name == 'retail_and_recreation_percent_change_from_baseline' else 'red'
-    trace.marker.visible = False  # Menyembunyikan penanda
+    if trace.name == 'retail_and_recreation_percent_change_from_baseline':
+        trace.line.color = 'green' if trace.y[-1] > trace.y[0] else 'red'
+    else:
+        trace.line.color = 'red'  # Warna untuk grocery and pharmacy
 
 # Menampilkan grafik
 st.plotly_chart(fig1, use_container_width=True)
