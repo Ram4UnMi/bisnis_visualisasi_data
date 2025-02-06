@@ -296,16 +296,16 @@ st.header(texts[st.session_state.language]['retail_recreation_title'])
 # Menentukan warna berdasarkan perubahan
 filtered_df['color'] = filtered_df['retail_and_recreation_percent_change_from_baseline'].diff().apply(lambda x: 'green' if x > 0 else 'red')
 
-# Membuat grafik garis
+# Membuat grafik garis tanpa penanda
 fig1 = px.line(
     filtered_df,
     x='date',
     y=['retail_and_recreation_percent_change_from_baseline', 'grocery_and_pharmacy_percent_change_from_baseline'],
     labels={"value": "% Change", "variable": "Category"},
-    markers=True
+    line_shape='linear'  # Menentukan bentuk garis
 )
 
-# Menambahkan titik maksimum dan minimum
+# Menambahkan titik maksimum dan minimum untuk retail
 max_value_retail = filtered_df['retail_and_recreation_percent_change_from_baseline'].max()
 min_value_retail = filtered_df['retail_and_recreation_percent_change_from_baseline'].min()
 
@@ -324,7 +324,9 @@ fig1.add_scatter(
 # Mengubah warna garis berdasarkan perubahan
 for trace in fig1.data:
     trace.line.color = 'green' if trace.name == 'retail_and_recreation_percent_change_from_baseline' else 'red'
+    trace.marker.visible = False  # Menyembunyikan penanda
 
+# Menampilkan grafik
 st.plotly_chart(fig1, use_container_width=True)
 st.markdown(texts[st.session_state.language]['retail_recreation_insight'])
 
