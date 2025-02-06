@@ -350,6 +350,23 @@ fig_increase = px.bar(
 
 st.plotly_chart(fig_increase, use_container_width=True)
 
+# Sub grafik yang hanya menampilkan grafik penurunan data
+st.subheader("Workplace Mobility Decrease Patterns")
+
+# Filter data untuk penurunan (nilai negatif)
+decrease_df = filtered_df[filtered_df['workplaces_percent_change_from_baseline'] < 0]
+
+fig_decrease = px.bar(
+    decrease_df,
+    x='date',
+    y='workplaces_percent_change_from_baseline',
+    color='workplaces_percent_change_from_baseline',
+    color_continuous_scale="Viridis",
+    title="Workplace Mobility Decrease Only"
+)
+
+st.plotly_chart(fig_decrease, use_container_width=True)
+
 # Residential Mobility Heatmap
 st.header(texts[st.session_state.language]['residential_title'])
 heatmap_data = filtered_df.pivot_table(
