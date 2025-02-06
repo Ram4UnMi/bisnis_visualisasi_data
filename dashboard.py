@@ -95,14 +95,11 @@ texts = {
         'residential_title': "Residential Mobility Patterns",
         'residential_insight': """
         ### Analysis & Strategic Insights
-        - **Lockdown Impact**:
-          - Intense residential presence during weekdays
-          - Limited weekend variation suggesting restricted social activities
-          - Peak hours aligned with work-from-home schedules
-        - **New Normal Transition**:
-          - More varied patterns showing return to normal routines
-          - Distinct weekend-weekday differences
-          - Lower overall residential presence indicating increased outdoor activities
+        - **Residential Mobility Patterns**:
+          - **Workdays**: Residential mobility tends to be higher on workdays, indicating more activity at home.
+          - **Weekends**: A significant decrease is observed on weekends, which may suggest more activities outside the home.
+          - **Day Comparison**: The clear difference between workdays and weekends indicates a significant change in social behavior.
+          - **Recommendation**: Considering these patterns, public and business policies can be adjusted to accommodate changes in residential mobility.
         """,
         'clustering_title': "Mobility Pattern Clusters Analysis Dashboard",
         'clustering_subtitle': "Understanding Mobility Behavioral Patterns",
@@ -200,17 +197,14 @@ texts = {
           - Nilai lebih tinggi namun di bawah baseline menunjukkan adopsi kerja hybrid
           - Pola lebih stabil menunjukkan norma baru tempat kerja
         """,
-        'residential_title': "Pola Mobilitas Residensial",
+        'residential_title': "Residential Mobility Patterns",
         'residential_insight': """
         ### Analisis & Wawasan Strategis
-        - **Dampak Lockdown**:
-          - Kehadiran residensial intens selama hari kerja
-          - Variasi akhir pekan terbatas menunjukkan aktivitas sosial terbatas
-          - Jam puncak selaras dengan jadwal WFH
-        - **Transisi Normal Baru**:
-          - Pola lebih bervariasi menunjukkan kembali ke rutinitas normal
-          - Perbedaan jelas antara akhir pekan-hari kerja
-          - Kehadiran residensial lebih rendah menunjukkan peningkatan aktivitas luar
+        - **Pola Mobilitas Residensial**:
+          - **Hari Kerja**: Mobilitas residensial cenderung lebih tinggi pada hari kerja, menunjukkan aktivitas yang lebih banyak di rumah.
+          - **Akhir Pekan**: Terlihat penurunan signifikan pada akhir pekan, yang mungkin menunjukkan lebih banyak aktivitas di luar rumah.
+          - **Perbandingan Hari**: Perbedaan yang jelas antara hari kerja dan akhir pekan menunjukkan perubahan perilaku sosial yang signifikan.
+          - **Rekomendasi**: Mempertimbangkan pola ini, kebijakan publik dan bisnis dapat disesuaikan untuk mengakomodasi perubahan dalam mobilitas residensial.
         """,
         'clustering_title': "Dashboard Analisis Klaster Pola Mobilitas",
         'clustering_subtitle': "Memahami Pola Perilaku Mobilitas",
@@ -416,22 +410,21 @@ st.header(texts[st.session_state.language]['residential_title'])
 daily_avg = filtered_df.groupby(filtered_df['date'].dt.weekday)['residential_percent_change_from_baseline'].mean()
 daily_avg.index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
-# Buat grafik batang
+# Buat grafik batang dengan penekanan warna
 fig_bar = px.bar(
     daily_avg,
     x=daily_avg.index,
     y=daily_avg.values,
     labels={"x": "Day", "y": "Average % Change"},
-    color=daily_avg.index,
-    color_discrete_sequence=px.colors.qualitative.Pastel,
+    color=daily_avg.values,
+    color_continuous_scale=px.colors.sequential.Reds,  # Menggunakan skala warna merah
     title="Average Residential Mobility Change by Day"
 )
 
-# Soroti akhir pekan
-fig_bar.update_traces(marker_color=["green"]*5 + ["red"]*2)
+# Soroti akhir pekan dengan warna yang berbeda
+fig_bar.update_traces(marker_color=["blue"]*5 + ["orange"]*2)  # Warna biru untuk hari kerja, oranye untuk akhir pekan
 
 st.plotly_chart(fig_bar, use_container_width=True)
-st.markdown(texts[st.session_state.language]['residential_insight'])
 
 # Clustering Analysis
 st.header(texts[st.session_state.language]['clustering_title'])
